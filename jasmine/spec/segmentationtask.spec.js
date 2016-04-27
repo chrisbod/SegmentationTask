@@ -138,8 +138,9 @@
   	});
   	task.on("complete", function (event) {
   		expect(end).toBe(true);
-  		end = true;
+  		complete = true;
   		expect(event.segment.length).toBe(17)
+      done()
   	});
   	task.pushSegment(allResults)
   	task.start()
