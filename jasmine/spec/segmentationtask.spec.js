@@ -96,24 +96,27 @@
   	task.start()
   	task.pushSegment(allResults);
   });
+  
   it("should fire an expire event if it times out ", function (done) {
   	task = new SegmentationTask();
   	now = Date.now()
   	task.expiry = 1000;
   	task.on("expire", function (event) {
-
   		expect(event.timeStamp >= now+1000).toBe(true)
   		done()
 
   	});
+    //since no data is provided the task only starts but never emits any data
   	task.start()
   });
+  //it("should fire an expire event and stop emitting data if it times out",)
   it("should provide segments of the correct size when possible", function (done) {
   	task = new SegmentationTask()
   	task.segmentSize = 3;
   	var segments = [],
   		expectedSegments = Math.ceil(allResults.length/task.segmentSize)
   	task.on("segment",function (event) {
+     
   		expect(event.segment.length<=3).toBe(true);
   		segments.push(event.segment)
   		if (segments.length==expectedSegments) {
@@ -126,6 +129,30 @@
   	})
   	task.pushSegment(allResults);
   	task.start()
+  })
+  it("should emit at the specified intervals", function (done) {
+    task = new SegmentationTask()
+    task.segmentSize = 3;
+    task.segmentDelay = 500;
+    var segmentCount = expectedSegments = Math.ceil(allResults.length/task.segmentSize)
+    var currentTime = 0,
+        segmentsReceived = 0
+    task.on("segment",function (event) {
+      segmentsReceived+=event.segment.length
+      if (currentTime==0) {
+        currentTime = Date.now();
+        return
+      }
+      
+      if (segmentsReceived>=allResults.length) {
+        expect(event.timeStamp-currentTime>=500).toBe(true)
+        done()
+      }
+      currentTime = event.timeStamp
+    })
+    task.pushSegment(allResults);
+    task.start()
+    
   })
   it("should fire an end  event then a complete event when the maxSize is exceeded with the correct values", function (done) {
   	task = new SegmentationTask()
@@ -145,5 +172,6 @@
   	task.pushSegment(allResults)
   	task.start()
   })
+  //it("should be able to force the segment size even if data is ")
   
  });
