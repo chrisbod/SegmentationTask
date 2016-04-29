@@ -250,7 +250,7 @@
   	task.pushSegment(allResults)
   	task.start()
   });
-  it("should be able to be aborted and therefore emit no events", function (done) {
+  it("should be able to be aborted and therefore emit no more segment events", function (done) {
     task = new SegmentationTask();
     task.segmentSize = 3;
     var segmentCount = 0;
